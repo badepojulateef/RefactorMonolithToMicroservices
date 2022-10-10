@@ -1,40 +1,36 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: backend-user
+    name: udagram-api-user
+    labels:
+        app: udagram-api-user
 spec:
-  selector:
-    matchLabels:
-      run: backend-user
-  replicas: 2
-  template:
-    metadata:
-      labels:
-        run: backend-user
-    spec:
-      containers:
-      - name: backend-user
-        image: docker.io/ademustexcel/udagram-api-user:v3
-        ports:
-        - containerPort: 80
-        resources:
-          limits:
-            cpu: 500m
-          requests:
-            cpu: 200m
-
-
----
-apiVersion: v1
-kind: Service
-metadata:
-  labels:
-    service: backend-user
-  name: backend-user
-spec:
-  ports:
-  - name: "8080"
-    port: 8080
-    targetPort: 8080
-  selector:
-    service: backend-user
+    replicas: 2
+    selector:
+        matchLabels:
+            app: udagram-api-user
+    template:
+        metadata:
+            labels:
+                app: udagram-api-user
+        spec:
+            containers:
+            - name: udagram-api-user
+              image: ademustexcel/udagram-api-user:v3
+              imagePullPolicy: Always
+              resources:
+                      requests:
+                          memory: "128Mi"
+                          cpu: "250m"
+                      limits:
+                          memory: "2048Mi"
+                          cpu: "500m"
+                  envFrom:
+                      - configMapRef:
+                            name: env-configmap
+                      - secretRef:
+                            name: env-secret
+                      - secretRef:
+                            name: aws-secret
+                  ports:
+                      - containerPort: 8080

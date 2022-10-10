@@ -1,39 +1,36 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: backend-feed
+    name: udagram-api-feed
+    labels:
+        app: udagram-api-feed
 spec:
-  selector:
-    matchLabels:
-      run: backend-feed
-  replicas: 2
-  template:
-    metadata:
-      labels:
-        run: backend-feed
-    spec:
-      containers:
-      - name: backend-feed
-        image: docker.io/ademustexcel/udagram-api-feed:v3
-        ports:
-        - containerPort: 80
-        resources:
-          requests:
-            cpu: 200m
-          limits:
-            cpu: 10000m 
-
----
-apiVersion: v1
-kind: Service
-metadata:
-  labels:
-    service: backend-feed
-  name: backend-feed
-spec:
-  ports:
-  - name: "8080"
-    port: 8080
-    targetPort: 8080
-  selector:
-    service: backend-feed
+    replicas: 2
+    selector:
+        matchLabels:
+            app: udagram-api-feed
+    template:
+        metadata:
+            labels:
+                app: udagram-api-feed
+        spec:
+            containers:
+              - name: udagram-api-feed
+                image: ademustexcel/udagram-api-feed:v3
+                imagePullPolicy: Always
+                resources:
+                  requests:
+                    memory: "128Mi"
+                    cpu: "250m"
+                  limits:
+                    memory: "2048Mi"
+                    cpu: "500m"
+                envFrom:
+                  - configMapRef:
+                      name: env-configmap
+                  - secretRef:
+                      name: env-secret
+                  - secretRef:
+                      name: aws-secret
+                ports:
+                  - containerPort: 8080
